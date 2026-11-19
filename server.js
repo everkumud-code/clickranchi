@@ -85,6 +85,13 @@ async function route(req,res){
  if(req.method==="POST"&&p==="/api/admin/sync")return send(res,200,{ok:true,...await syncAll()});
  if(req.method==="POST"&&p==="/api/admin/story-status"){const b=await bodyJSON(req);if(!b.id||!["published","pending","rejected"].includes(b.status))return send(res,400,{error:"Invalid story or status"});return send(res,await updateStory(b.id,b.status)?200:404,{ok:true});}
  if(req.method==="POST"&&p==="/api/logout")return send(res,200,{ok:true},"application/json; charset=utf-8",{"set-cookie":"cr_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"});
+ if(req.method==="GET"&&p.startsWith("/story/")){
+  const id=decodeURIComponent(p.slice(7)),story=(await listStories({publishedOnly:true,limit:5000})).find(x=>x.id===id);
+  if(!story)return send(res,404,"Story not found","text/plain; charset=utf-8");
+  const esc=x=>String(x||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const html='<!doctype html><html lang="'+(story.language==="hi"?"hi":"en")+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(story.title)+' | ClickRanchi</title><meta name="description" content="'+esc(story.aiSummary||story.excerpt)+'"><link rel="canonical" href="'+SITE_URL+'/story/'+encodeURIComponent(story.id)+'"></head><body style="font:17px/1.6 system-ui;max-width:760px;margin:40px auto;padding:0 20px;color:#202820"><a href="/" style="color:#173d2c;font-weight:bold">CLICKRANCHI</a><p style="color:#98671b;font-size:12px;text-transform:uppercase">'+esc(story.category)+' · '+esc(story.district)+'</p><h1>'+esc(story.title)+'</h1><p style="color:#777;font-size:13px">'+esc(story.sourceName)+' · '+new Date(story.publishedAt).toLocaleString("en-IN")+'</p><p>'+esc(story.aiSummary||story.excerpt)+'</p><p>This is a short news listing. Read the original report at the publisher.</p><a href="'+esc(story.url)+'" rel="noopener noreferrer" target="_blank">Read original report ↗</a></body></html>';
+  return send(res,200,html,"text/html; charset=utf-8");
+ }
  if(req.method==="GET"){
   const rel=p==="/"?"index.html":p==="/admin"?"admin.html":p.replace(/^\/+/,"");
   const full=path.resolve(PUBLIC,rel);if(!full.startsWith(PUBLIC+path.sep))return send(res,403,"Forbidden","text/plain");
