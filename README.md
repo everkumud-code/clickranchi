@@ -25,11 +25,9 @@ Automated Jharkhand-focused news aggregation and publishing. The product goal is
 ## Docker deployment
 1. Run bash scripts/bootstrap-env.sh to create a private .env with random passwords and session secret.
 2. Confirm SITE_URL=https://clickranchi.com and optionally add AI_API_KEY to .env.
-3. Add AI_API_KEY if AI enrichment is required.
-4. Run docker compose up -d --build.
-5. Run bash scripts/deploy-hostinger.sh to validate configuration and start the isolated containers.
-6. App listens only on 127.0.0.1:3300 on the host. Review deploy/clickranchi.nginx.conf and the existing VPS Nginx setup before enabling a dedicated reverse-proxy vhost. Do not overwrite other sites' server blocks.
-7. Run bash scripts/backup-postgres.sh for a manual database backup; schedule and copy backups off-server for production.
+3. Run bash scripts/deploy-hostinger.sh to validate configuration, build and start the isolated containers, then run a local health check.
+4. The app listens only on 127.0.0.1:3300 on the host. Review deploy/clickranchi.nginx.conf and the existing VPS Nginx setup before enabling a dedicated reverse-proxy vhost. Do not overwrite other sites' server blocks.
+5. Run bash scripts/backup-postgres.sh for a manual database backup; schedule and copy backups off-server for production.
 
 ## Publisher rights
 Only enable feeds where publisher terms or written permission allow aggregation. Johar LIVE is enabled based on the project owner's confirmation. Other publishers remain disabled until permission is confirmed. Do not republish full article text, photos or publisher assets unless the agreement expressly grants those rights.
