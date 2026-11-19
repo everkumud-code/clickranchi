@@ -33,7 +33,5 @@ services:
       AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1/chat/completions}
     ports:
       - "127.0.0.1:3300:3000"
-    volumes:
-      - ./data:/app/data
 volumes:
   clickranchi_pg:
