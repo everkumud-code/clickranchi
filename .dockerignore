@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+.env
+.env.*
+!.env.example
+data/stories.json
+data/*.tmp
+npm-debug.log*
+.DS_Store
