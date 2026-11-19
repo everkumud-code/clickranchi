@@ -1,0 +1,1 @@
+ClickRanchi local MVP — baseline import. See application files in the repository.
