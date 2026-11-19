@@ -32,17 +32,18 @@ async function initStore(){
   const {Pool}=require("pg");pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.PGSSL==="true"?{rejectUnauthorized:false}:undefined,max:10,idleTimeoutMillis:30000,connectionTimeoutMillis:10000});
   await pool.query("CREATE TABLE IF NOT EXISTS stories (id text PRIMARY KEY, url text UNIQUE NOT NULL, title text NOT NULL, excerpt text NOT NULL DEFAULT '', published_at timestamptz NOT NULL, collected_at timestamptz NOT NULL, source_id text NOT NULL, source_name text NOT NULL, status text NOT NULL, district text NOT NULL, category text NOT NULL, language text NOT NULL, cluster_id text NOT NULL)");
   await pool.query("ALTER TABLE stories ADD COLUMN IF NOT EXISTS ai_summary text NOT NULL DEFAULT ''");
+  await pool.query("ALTER TABLE stories ADD COLUMN IF NOT EXISTS ai_processed boolean NOT NULL DEFAULT false");
   await pool.query("CREATE INDEX IF NOT EXISTS stories_published_idx ON stories(status,published_at DESC)");
   await pool.query("CREATE INDEX IF NOT EXISTS stories_cluster_idx ON stories(cluster_id)");
  }else if(isProd){throw new Error("DATABASE_URL is required in production");}
 }
-function fromRow(r){return {id:r.id,url:r.url,title:r.title,excerpt:r.excerpt,aiSummary:r.ai_summary||"",publishedAt:new Date(r.published_at).toISOString(),collectedAt:new Date(r.collected_at).toISOString(),sourceId:r.source_id,sourceName:r.source_name,status:r.status,district:r.district,category:r.category,language:r.language,clusterId:r.cluster_id};}
+function fromRow(r){return {id:r.id,url:r.url,title:r.title,excerpt:r.excerpt,aiSummary:r.ai_summary||"",aiProcessed:Boolean(r.ai_processed),publishedAt:new Date(r.published_at).toISOString(),collectedAt:new Date(r.collected_at).toISOString(),sourceId:r.source_id,sourceName:r.source_name,status:r.status,district:r.district,category:r.category,language:r.language,clusterId:r.cluster_id};}
 async function listStories({publishedOnly=false,limit=500}={}){
  if(pool){const r=await pool.query("SELECT * FROM stories "+(publishedOnly?"WHERE status='published' ":"")+"ORDER BY published_at DESC LIMIT $1",[limit]);return r.rows.map(fromRow);}
  const rows=readJSON(DB).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt));return (publishedOnly?rows.filter(x=>x.status==="published"):rows).slice(0,limit);
 }
 async function saveStory(s){
- if(pool){const r=await pool.query("INSERT INTO stories(id,url,title,excerpt,ai_summary,published_at,collected_at,source_id,source_name,status,district,category,language,cluster_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT(url) DO NOTHING",[s.id,s.url,s.title,s.excerpt,s.aiSummary||"",s.publishedAt,s.collectedAt,s.sourceId,s.sourceName,s.status,s.district,s.category,s.language,s.clusterId]);return r.rowCount>0;}
+ if(pool){const r=await pool.query("INSERT INTO stories(id,url,title,excerpt,ai_summary,ai_processed,published_at,collected_at,source_id,source_name,status,district,category,language,cluster_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) ON CONFLICT(url) DO NOTHING",[s.id,s.url,s.title,s.excerpt,s.aiSummary||"",Boolean(s.aiProcessed),s.publishedAt,s.collectedAt,s.sourceId,s.sourceName,s.status,s.district,s.category,s.language,s.clusterId]);return r.rowCount>0;}
  const rows=readJSON(DB);if(rows.some(x=>x.url===s.url))return false;rows.push(s);writeJSON(DB,rows);return true;
 }
 async function updateStory(id,status){if(pool){const r=await pool.query("UPDATE stories SET status=$2 WHERE id=$1",[id,status]);return r.rowCount>0;}const rows=readJSON(DB),item=rows.find(x=>x.id===id);if(!item)return false;item.status=status;writeJSON(DB,rows);return true;}
@@ -85,7 +86,7 @@ async function route(req,res){
  if(req.method==="POST"&&p==="/api/login"){const ip=req.headers["x-forwarded-for"]||req.socket.remoteAddress||"unknown";if(rateLimited(ip))return send(res,429,{error:"Too many login attempts. Try again in 15 minutes."});const b=await bodyJSON(req);if(!PASS||!SECRET||!timingSafeText(b.username,USER)||!timingSafeText(b.password,PASS))return send(res,401,{error:"Invalid credentials or admin secrets not configured"});const token=sign({user:USER,exp:Date.now()+28800000});const secure=isProd||req.headers["x-forwarded-proto"]==="https";return send(res,200,{ok:true},"application/json; charset=utf-8",{"set-cookie":"cr_session="+token+"; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800"+(secure?"; Secure":"")});}
  if(p.startsWith("/api/admin/")&&!requireAdmin(req,res))return;
  if(req.method==="POST"&&p.startsWith("/api/admin/")&&!originAllowed(req))return send(res,403,{error:"Origin rejected"});
- if(req.method==="GET"&&p==="/api/admin/overview"){const counts=await countStories();return send(res,200,{counts,sources:readJSON(SOURCES),storage:pool?"PostgreSQL":"Local JSON",syncing});}
+ if(req.method==="GET"&&p==="/api/admin/overview"){const counts=await countStories();return send(res,200,{counts,sources:readJSON(SOURCES),storage:pool?"PostgreSQL":"Local JSON",aiEnabled:Boolean(process.env.AI_API_KEY),syncing});}
  if(req.method==="GET"&&p==="/api/admin/sources")return send(res,200,{sources:readJSON(SOURCES)});
  if(req.method==="GET"&&p==="/api/admin/stories")return send(res,200,{stories:await listStories({limit:500})});
  if(req.method==="POST"&&p==="/api/admin/sync")return send(res,200,{ok:true,...await syncAll()});
