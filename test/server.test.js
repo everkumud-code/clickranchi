@@ -13,6 +13,7 @@ test("HTTP server exposes health, public feed and SEO endpoints",async t=>{
  const health=await fetch(base+"/api/health").then(r=>r.json());
  assert.equal(health.ok,true);
  assert.equal(health.storage,"json-local");
+ const trend=await fetch(base+"/api/trending").then(r=>r.json());assert.ok(Array.isArray(trend.trending));
  const feed=await fetch(base+"/api/stories").then(r=>r.json());
  assert.ok(Array.isArray(feed.stories));
  assert.equal((await fetch(base+"/robots.txt")).status,200);
