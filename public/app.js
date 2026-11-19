@@ -14,7 +14,7 @@ async function load(){
   function render(){
    const term=q.value.toLocaleLowerCase();
    const list=stories.filter(s=>(!category||s.category===category)&&(!district.value||s.district===district.value)&&(!publisher.value||s.sourceId===publisher.value)&&(!term||(s.title+" "+s.excerpt+" "+s.sourceName+" "+s.district).toLocaleLowerCase().includes(term)));
-   root.innerHTML=list.map(s=>'<article class="card"><div class="tag">'+esc(s.category||"Jharkhand")+' · '+esc(s.district||"Jharkhand")+'</div><h2>'+esc(s.title)+'</h2><div class="meta">'+esc(s.sourceName)+' · '+new Date(s.publishedAt).toLocaleString("en-IN")+'</div><p>'+esc(s.excerpt||"")+'</p><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">Read original report ↗</a></article>').join("")||'<p class="meta">No published stories match these filters yet.</p>';
+   root.innerHTML=list.map(s=>'<article class="card"><div class="tag">'+esc(s.category||"Jharkhand")+' · '+esc(s.district||"Jharkhand")+'</div><h2>'+esc(s.title)+'</h2><div class="meta">'+esc(s.sourceName)+' · '+new Date(s.publishedAt).toLocaleString("en-IN")+'</div><p>'+esc(s.aiSummary||s.excerpt||"")+'</p><a href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">Read original report ↗</a></article>').join("")||'<p class="meta">No published stories match these filters yet.</p>';
    status.textContent=list.length+" published stories";
   }
   [q,district,publisher].forEach(el=>el.addEventListener(el===q?"input":"change",render));render();
