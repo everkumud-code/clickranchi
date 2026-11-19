@@ -27,7 +27,9 @@ Automated Jharkhand-focused news aggregation and publishing. The product goal is
 2. Set strong POSTGRES_PASSWORD, ADMIN_PASSWORD (16+ chars), SESSION_SECRET (32+ chars), SITE_URL=https://clickranchi.com.
 3. Add AI_API_KEY if AI enrichment is required.
 4. Run docker compose up -d --build.
-5. App listens only on 127.0.0.1:3300 on the host. Configure a dedicated reverse-proxy vhost for clickranchi.com to proxy to that loopback port. Do not overwrite existing site configs.
+5. Run bash scripts/deploy-hostinger.sh to validate configuration and start the isolated containers.
+6. App listens only on 127.0.0.1:3300 on the host. Review deploy/clickranchi.nginx.conf and the existing VPS Nginx setup before enabling a dedicated reverse-proxy vhost. Do not overwrite other sites' server blocks.
+7. Run bash scripts/backup-postgres.sh for a manual database backup; schedule and copy backups off-server for production.
 
 ## Publisher rights
 Only enable feeds where publisher terms or written permission allow aggregation. Johar LIVE is enabled based on the project owner's confirmation. Other publishers remain disabled until permission is confirmed. Do not republish full article text, photos or publisher assets unless the agreement expressly grants those rights.
