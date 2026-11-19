@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: clickranchi
       POSTGRES_USER: clickranchi
-      POSTGRES_PASSWORD: \${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_PASSWORD: {POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - clickranchi_pg:/var/lib/postgresql/data
     healthcheck:
@@ -22,12 +22,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgres://clickranchi:\${POSTGRES_PASSWORD}@db:5432/clickranchi
-      ADMIN_USER: \${ADMIN_USER:-admin}
-      ADMIN_PASSWORD: \${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
-      SESSION_SECRET: \${SESSION_SECRET:?Set SESSION_SECRET in .env}
-      SYNC_INTERVAL_MINUTES: \${SYNC_INTERVAL_MINUTES:-10}
-      SITE_URL: \${SITE_URL:-https://clickranchi.com}
+      DATABASE_URL: postgres://clickranchi:{POSTGRES_PASSWORD}@db:5432/clickranchi
+      ADMIN_USER: {ADMIN_USER:-admin}
+      ADMIN_PASSWORD: {ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+      SESSION_SECRET: {SESSION_SECRET:?Set SESSION_SECRET in .env}
+      SYNC_INTERVAL_MINUTES: {SYNC_INTERVAL_MINUTES:-10}
+      SITE_URL: {SITE_URL:-https://clickranchi.com}
     ports:
       - "127.0.0.1:3300:3000"
     volumes:
