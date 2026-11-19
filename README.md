@@ -1,32 +1,45 @@
 # ClickRanchi
 
-**Automated Jharkhand news aggregation and publishing platform.** The operating goal is zero routine manual newsroom work: authorised feeds are collected, processed, categorised, deduplicated and automatically published.
+Automated Jharkhand-focused news aggregation and publishing. The product goal is zero routine manual newsroom work: authorised publisher feeds are collected, deduplicated, classified, tagged and published automatically.
 
-## Current MVP
-- Node.js 20+ application.
-- RSS/Atom collection at a default 10-minute interval.
-- Johar LIVE feed configured and auto-publish enabled based on the project owner's confirmation that permission has been obtained.
-- Initial publishing payload: RSS headline, short feed excerpt, publisher attribution and original article link.
-- Duplicate URL detection.
-- Public homepage with publisher attribution and source links.
-- Admin endpoints for source/story inspection and manual sync (optional operational tools, not a required publishing step).
+## Current implementation
+- Node.js 20+ application with public news feed and operational newsroom.
+- RSS/Atom ingestion on startup and every 10 minutes (configurable).
+- Johar LIVE configured as enabled + auto-publish based on the project owner's permission confirmation. Initial payload is limited to RSS headline, short feed excerpt, publisher attribution and canonical source link.
+- Duplicate URL suppression with tracking-parameter normalisation.
+- Heuristic Hindi/English detection, category classification and Jharkhand 24-district tagging.
+- Similar-headline clustering metadata.
+- PostgreSQL persistence when DATABASE_URL is configured; local JSON persistence for development only.
+- Signed, expiring admin session cookies, login throttling, production secret checks and same-origin checks on admin mutations.
+- Health endpoint, robots.txt and dynamic XML sitemap.
+- Dockerfile, Docker Compose PostgreSQL setup and GitHub Actions test workflow.
 
-## Local run
-1. Copy `.env.example` to `.env`.
-2. Set a strong `ADMIN_PASSWORD`.
-3. Run `npm start`.
-4. Open `http://localhost:3000`.
+## Local development
+1. Install Node.js 20+.
+2. Copy .env.example to .env; set ADMIN_PASSWORD and SESSION_SECRET.
+3. For quick local mode, leave DATABASE_URL blank. For PostgreSQL mode, set DATABASE_URL to a local PostgreSQL connection.
+4. Run npm install.
+5. Run npm test.
+6. Run npm start and open http://localhost:3000.
 
-## Automated publishing policy
-- No routine human approval step for enabled, authorised sources.
-- Stories from an enabled source with `autoPublish: true` are published as soon as ingestion succeeds.
-- Feed failures are recorded; the next scheduled run retries.
-- Duplicate items are skipped.
-- Sources without confirmed permission remain disabled.
-- The platform does not reproduce full articles or publisher images by default. Expand reproduction only where the written permission expressly allows it.
+## Docker deployment
+1. Copy .env.example to .env.
+2. Set strong POSTGRES_PASSWORD, ADMIN_PASSWORD (16+ chars), SESSION_SECRET (32+ chars), and SITE_URL=https://clickranchi.com.
+3. Run docker compose up -d --build.
+4. App listens only on 127.0.0.1:3300 on the host. Configure a dedicated reverse-proxy vhost for clickranchi.com to proxy to that loopback port. Do not overwrite existing site configs.
 
-## Production work still required
-This MVP is not production-ready. Before VPS launch, replace JSON-file persistence with PostgreSQL, use a durable background worker/queue, harden authentication and session storage, add feed-specific parsers/retries/rate limits, structured logs/alerts, backups, tests and deployment isolation on the Hostinger Ubuntu VPS. AI summaries, robust Hindi/Jharkhand geography classification and story clustering are planned modules, not yet implemented.
+## Publisher rights
+Only enable feeds where the publisher's terms or written permission allow aggregation. Johar LIVE is enabled based on the project owner's confirmation. Other publishers remain disabled until permission is confirmed. Do not republish full article text, photos or publisher assets unless the agreement expressly grants those rights.
 
-## Security
-Never commit `.env`, passwords, tokens, private keys or production data.
+## Classification limitations
+Current language/category/district classification is deterministic keyword-based baseline, not an AI model. District is set to Jharkhand when no district term is detected. Story clustering is a title-token similarity heuristic. These features need evaluation against a labelled Jharkhand news dataset before being treated as editorially reliable. No LLM API key is assumed or hard-coded.
+
+## Production checklist
+- Deploy to an isolated app directory and service/container; preserve all other VPS sites.
+- Configure HTTPS and a dedicated reverse-proxy vhost after inspecting existing Nginx configuration.
+- Configure backups and monitoring for PostgreSQL.
+- Test the Johar LIVE feed from the VPS network and verify first ingestion.
+- Add alert delivery and evaluate classification precision/recall.
+- Set up off-host database backups and restore drills.
+
+Never commit .env, credentials, access tokens, private keys or production data.
