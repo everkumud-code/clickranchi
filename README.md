@@ -23,8 +23,8 @@ Automated Jharkhand-focused news aggregation and publishing. The product goal is
 5. Open http://localhost:3000.
 
 ## Docker deployment
-1. Copy .env.example to .env.
-2. Set strong POSTGRES_PASSWORD, ADMIN_PASSWORD (16+ chars), SESSION_SECRET (32+ chars), SITE_URL=https://clickranchi.com.
+1. Run bash scripts/bootstrap-env.sh to create a private .env with random passwords and session secret.
+2. Confirm SITE_URL=https://clickranchi.com and optionally add AI_API_KEY to .env.
 3. Add AI_API_KEY if AI enrichment is required.
 4. Run docker compose up -d --build.
 5. Run bash scripts/deploy-hostinger.sh to validate configuration and start the isolated containers.
