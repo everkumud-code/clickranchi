@@ -5,8 +5,8 @@
     "feedUrl": "https://www.joharlive.com/feed/",
     "websiteUrl": "https://www.joharlive.com/",
     "enabled": true,
-    "autoPublish": false,
-    "permissionNote": "User states permission has been obtained. Confirm permitted use of headlines, excerpts, images and summaries before enabling broader reproduction."
+    "autoPublish": true,
+    "permissionNote": "Project owner confirms permission has been obtained. Initial automatic publishing is limited to RSS headline, short feed excerpt, publisher attribution and original article link; expand content types only if explicitly covered by the agreement."
   },
   {
     "id": "thefollowup-ranchi",
