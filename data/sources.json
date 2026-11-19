@@ -1,0 +1,20 @@
+[
+  {
+    "id": "joharlive",
+    "name": "Johar LIVE",
+    "feedUrl": "https://www.joharlive.com/feed/",
+    "websiteUrl": "https://www.joharlive.com/",
+    "enabled": true,
+    "autoPublish": false,
+    "permissionNote": "User states permission has been obtained. Confirm permitted use of headlines, excerpts, images and summaries before enabling broader reproduction."
+  },
+  {
+    "id": "thefollowup-ranchi",
+    "name": "The Followup — Ranchi",
+    "feedUrl": "https://thefollowup.in/rss-v1-category-17.xml",
+    "websiteUrl": "https://thefollowup.in/",
+    "enabled": false,
+    "autoPublish": false,
+    "permissionNote": "Do not enable publishing until permission and feed terms are confirmed."
+  }
+]
