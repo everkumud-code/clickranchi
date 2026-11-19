@@ -2,8 +2,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 async function load(){
  const root=$("#stories"),status=$("#status"),q=$("#q"),district=$("#district"),publisher=$("#publisher");
- const params=new URLSearchParams(location.search);const category=params.get("category")||"";
- if(category)status.textContent="Category: "+category;
+ const params=new URLSearchParams(location.search);const category=params.get("category")||"",initialDistrict=params.get("district")||"";
+ if(category)status.textContent="Category: "+category;else if(initialDistrict)status.textContent="District: "+initialDistrict;
  try{
   const response=await fetch("/api/stories");if(!response.ok)throw new Error("News feed unavailable");
   const {stories=[]}=await response.json();
@@ -11,6 +11,7 @@ async function load(){
   const publishers=[...new Map(stories.map(s=>[s.sourceId,s.sourceName])).entries()];
   district.innerHTML='<option value="">All districts</option>'+districts.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
   publisher.innerHTML='<option value="">All publishers</option>'+publishers.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join("");
+  if(initialDistrict)district.value=initialDistrict;
   function render(){
    const term=q.value.toLocaleLowerCase();
    const list=stories.filter(s=>(!category||s.category===category)&&(!district.value||s.district===district.value)&&(!publisher.value||s.sourceId===publisher.value)&&(!term||(s.title+" "+s.excerpt+" "+s.sourceName+" "+s.district).toLocaleLowerCase().includes(term)));
