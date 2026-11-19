@@ -1,8 +1,9 @@
 {
   "name": "clickranchi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Jharkhand-focused news discovery and aggregation platform",
-  "scripts": { "start": "node server.js", "dev": "node --watch server.js" },
-  "engines": { "node": ">=20" }
+  "description": "Automated Jharkhand news aggregation and publishing platform",
+  "scripts": {"start":"node server.js","dev":"node --watch server.js","test":"node --test","check":"node --check server.js && node --check lib/news.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {"pg": "^8.13.1"}
 }
