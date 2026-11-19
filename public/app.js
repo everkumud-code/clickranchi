@@ -7,6 +7,7 @@ async function load(){
  try{
   const response=await fetch("/api/stories");if(!response.ok)throw new Error("News feed unavailable");
   const {stories=[]}=await response.json();
+  try{const tr=await fetch("/api/trending").then(r=>r.json());if(tr.trending?.length){$("#trending").style.display="block";$("#trending-items").innerHTML=tr.trending.map(x=>'<div style="padding:9px 0;border-top:1px solid #eee"><strong>'+esc(x.title)+'</strong><div class="meta">'+x.storyCount+' related reports · '+esc(x.publishers.join(", "))+'</div></div>').join("");}}catch{}
   const districts=[...new Set(stories.map(s=>s.district).filter(Boolean))].sort();
   const publishers=[...new Map(stories.map(s=>[s.sourceId,s.sourceName])).entries()];
   district.innerHTML='<option value="">All districts</option>'+districts.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");
