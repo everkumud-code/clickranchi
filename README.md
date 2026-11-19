@@ -1,27 +1,32 @@
 # ClickRanchi
 
-Jharkhand-focused news discovery and aggregation platform.
+**Automated Jharkhand news aggregation and publishing platform.** The operating goal is zero routine manual newsroom work: authorised feeds are collected, processed, categorised, deduplicated and automatically published.
 
-## Repository status
+## Current MVP
+- Node.js 20+ application.
+- RSS/Atom collection at a default 10-minute interval.
+- Johar LIVE feed configured and auto-publish enabled based on the project owner's confirmation that permission has been obtained.
+- Initial publishing payload: RSS headline, short feed excerpt, publisher attribution and original article link.
+- Duplicate URL detection.
+- Public homepage with publisher attribution and source links.
+- Admin endpoints for source/story inspection and manual sync (optional operational tools, not a required publishing step).
 
-This repository has been initialized. The current first commit is a placeholder; the full local MVP ZIP should be imported as the next code commit.
+## Local run
+1. Copy `.env.example` to `.env`.
+2. Set a strong `ADMIN_PASSWORD`.
+3. Run `npm start`.
+4. Open `http://localhost:3000`.
 
-## Product direction
+## Automated publishing policy
+- No routine human approval step for enabled, authorised sources.
+- Stories from an enabled source with `autoPublish: true` are published as soon as ingestion succeeds.
+- Feed failures are recorded; the next scheduled run retries.
+- Duplicate items are skipped.
+- Sources without confirmed permission remain disabled.
+- The platform does not reproduce full articles or publisher images by default. Expand reproduction only where the written permission expressly allows it.
 
-- Collect permitted news headlines and metadata from publisher RSS/Atom feeds.
-- Attribute every story to its original publisher and link to the source.
-- Deduplicate stories and organise by topic and Jharkhand geography.
-- Support editorial review and source-specific auto-publishing.
-- Default collection cadence: every 10 minutes.
+## Production work still required
+This MVP is not production-ready. Before VPS launch, replace JSON-file persistence with PostgreSQL, use a durable background worker/queue, harden authentication and session storage, add feed-specific parsers/retries/rate limits, structured logs/alerts, backups, tests and deployment isolation on the Hostinger Ubuntu VPS. AI summaries, robust Hindi/Jharkhand geography classification and story clustering are planned modules, not yet implemented.
 
-## Planned production architecture
-
-Next.js or equivalent web UI, PostgreSQL, a durable background worker/queue, secure admin authentication, monitoring and automated backups on the existing Hostinger Ubuntu VPS. Deploy in an isolated directory/service and preserve the other hosted websites.
-
-## Content rights
-
-The project owner states that permission has been obtained from Johar LIVE. Confirm the exact permitted uses (headline, excerpt, image, AI summary and full article) before enabling each type of reproduction. Other publisher integrations remain disabled until permissions and feed terms are confirmed.
-
-## Important
-
-Do not commit credentials, API keys, passwords, session secrets, private keys or production database dumps.
+## Security
+Never commit `.env`, passwords, tokens, private keys or production data.
