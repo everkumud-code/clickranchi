@@ -18,4 +18,9 @@ test("HTTP server exposes health, public feed and SEO endpoints",async t=>{
  assert.equal((await fetch(base+"/robots.txt")).status,200);
  assert.equal((await fetch(base+"/sitemap.xml")).status,200);
  assert.equal((await fetch(base+"/api/admin/overview")).status,401);
+ const login=await fetch(base+"/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:"test-admin",password:"test-password"})});
+ assert.equal(login.status,200);
+ const cookie=login.headers.get("set-cookie");assert.ok(cookie&&cookie.includes("cr_session="));
+ const admin=await fetch(base+"/api/admin/overview",{headers:{cookie:cookie.split(";")[0]}}).then(r=>r.json());
+ assert.equal(admin.storage,"Local JSON");
 });
