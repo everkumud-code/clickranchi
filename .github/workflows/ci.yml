@@ -7,6 +7,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-postgres-password
+      ADMIN_PASSWORD: ci-admin-password-long-enough
+      SESSION_SECRET: ci-session-secret-with-at-least-thirty-two-bytes
+      SITE_URL: https://clickranchi.example
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -14,4 +19,5 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm test
-      - run: node --check server.js
+      - run: npm run check
+      - run: docker compose config --quiet
