@@ -8,3 +8,5 @@ data/stories.json
 data/*.tmp
 npm-debug.log*
 .DS_Store
+backups/
+*.log
